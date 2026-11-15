@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+/* Varian `fx:` aktif saat mode kanvas tablet landscape (1920x1200) */
+@custom-variant fx (&:where(.fx-root, .fx-root *));
+
+@theme {
+  --color-header-red: #F5391C;
+  --color-paper: #ECEEF8;
+  --color-surface: #F4F5FA;
+  --color-card-border: #B8BCC6;
+  --color-sel: #D32F2F;
+  --color-brand: #1E88F5;
+  --color-brand-dark: #1769C2;
+  --color-danger: #E53935;
+  --color-photo: #1E7FD6;
+  --color-dis: #B0BEC5;
+  --color-ink: #1A1A1A;
+  --animate-pop: pop 0.15s ease-out;
+  --animate-scan: scan 2.4s ease-in-out infinite alternate;
+  @keyframes pop { from { scale: 0.6; } to { scale: 1; } }
+  @keyframes scan { to { top: 92%; } }
+}
+
+@layer base {
+  html, body { min-height: 100%; }
+  button { cursor: pointer; }
+  button:focus:not(:focus-visible) { outline: none; }
+}
