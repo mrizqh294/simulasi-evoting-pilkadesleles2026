@@ -4,7 +4,7 @@ import "./globals.css";
 
 const roboto = Roboto({ subsets: ["latin"], weight: ["400", "500", "700"], display: "swap" });
 
-export const metadata: Metadata = { title: "Surat Suara – E-Voting", description: "Aplikasi e-voting pemilihan kepala desa" };
+export const metadata: Metadata = { title: "Simulasi E-Voting Pilkades Leles 2026", description: "Aplikasi e-voting pemilihan kepala desa Leles 2026" };
 export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover" };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
