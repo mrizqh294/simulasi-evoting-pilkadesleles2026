@@ -1,10 +1,11 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Defs from "./Defs";
 import Header from "./Header";
 import CandidateCard from "./CandidateCard";
 import Photo from "./Photo";
-import { CANDIDATES } from "@/lib/data";
+import ScanCamera from "./ScanCamera";
+import { CANDIDATES, VALID_NIKS } from "@/lib/data";
 
 type Screen = "scan" | "vote";
 
@@ -12,6 +13,9 @@ export default function Ballot() {
   const [currentScreen, setScreen] = useState<Screen>("scan");
   const [selectedCandidateId, setSelected] = useState<number | null>(null);
   const [isModalOpen, setModal] = useState(false);
+  const [rejection, setRejection] = useState<string | null>(null);
+  const nikRef = useRef<string | null>(null);
+  const usedNiks = useRef<Set<string>>(new Set()); // NIK yang sudah memilih (hanya di memori sesi)
   const [view, setView] = useState({ ready: false, fixed: false, scale: 1, x: 0, y: 0 });
 
   // Landscape tablet/desktop: kanvas 1920x1200 diskalakan muat layar. Lainnya: layout cair.
@@ -27,19 +31,27 @@ export default function Ballot() {
     return () => removeEventListener("resize", calc);
   }, []);
 
-  const scanned = useCallback(() => setScreen("vote"), []);
+  // Dipanggil dari kamera maupun pemindai hardware dengan isi QR (NIK).
+  const handleScan = useCallback((raw: string) => {
+    if (currentScreen !== "scan" || rejection) return;
+    const nik = raw.trim();
+    if (!VALID_NIKS.includes(nik)) return setRejection("QR Code tidak terdaftar sebagai pemilih.");
+    if (usedNiks.current.has(nik)) return setRejection("NIK ini sudah menggunakan hak pilihnya.");
+    nikRef.current = nik;
+    setScreen("vote");
+  }, [currentScreen, rejection]);
 
-  // Pemindai QR hardware (keyboard wedge): mengetik kode lalu Enter = QR valid.
+  // Pemindai QR hardware (keyboard wedge): mengetik isi QR lalu Enter.
   useEffect(() => {
     if (currentScreen !== "scan") return;
     let buf = "";
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Enter") { if (buf.length >= 4) scanned(); buf = ""; }
+      if (e.key === "Enter") { if (buf) handleScan(buf); buf = ""; }
       else if (e.key.length === 1) buf += e.key;
     };
     addEventListener("keydown", onKey);
     return () => removeEventListener("keydown", onKey);
-  }, [currentScreen, scanned]);
+  }, [currentScreen, handleScan]);
 
   const chosen = CANDIDATES.find((c) => c.id === selectedCandidateId) ?? null;
   const reset = () => { setSelected(null); setModal(false); };
@@ -56,12 +68,15 @@ export default function Ballot() {
       <Header />
       {currentScreen === "scan" ? (
         <section className="flex flex-col items-center px-4 py-8 fx:flex-1 fx:p-0 fx:pt-[60px]">
-          <button onClick={scanned} aria-label="Simulasi pemindaian QR" className="relative aspect-square w-[min(520px,80vw)] border-2 border-card-border bg-surface fx:w-[520px]">
+          <div className="relative aspect-square w-[min(520px,80vw)] border-2 border-card-border bg-surface fx:w-[520px]">
+            <div className="absolute inset-0 overflow-hidden">
+              <ScanCamera onResult={handleScan} paused={!!rejection} />
+            </div>
             {corners.map((c) => (<i key={c} className={`absolute size-[14%] border-brand ${c}`} />))}
             <b className="absolute inset-x-[8%] top-[8%] h-[3px] bg-brand/70 animate-scan" />
-          </button>
+          </div>
           <p className="mt-7 text-center text-[clamp(20px,5vw,30px)] font-bold fx:mt-10 fx:text-[30px]">Pindai QR Code Anda</p>
-          <p className="mt-2.5 text-center text-sm text-[#7a7f8c] fx:mt-3">Demo: ketuk kotak pemindai untuk mensimulasikan QR valid</p>
+          <p className="mt-2.5 text-center text-sm text-[#7a7f8c] fx:mt-3">Arahkan QR Code pada kartu pemilih ke kamera</p>
         </section>
       ) : (
         <>
@@ -98,10 +113,23 @@ export default function Ballot() {
             <div className="mt-2.5 text-[clamp(26px,6vw,36px)] font-bold fx:text-4xl">{chosen.id}</div>
             <div className="mt-1 text-[clamp(20px,4.6vw,30px)] font-bold uppercase leading-tight fx:text-[30px]">{chosen.name}</div>
             <div className="mt-6 text-[clamp(22px,5vw,36px)] font-bold leading-tight fx:mt-8 fx:text-4xl">Apakah Anda yakin akan memilih calon ini?</div>
-            <div className="mt-6 flex gap-4 fx:bottom-10 fx:mt-6 fx:justify-center fx:gap-6">
+            <div className="mt-6 flex gap-4 fx:absolute fx:inset-x-10 fx:bottom-10 fx:mt-0 fx:justify-center fx:gap-6">
               <button onClick={reset} className="min-h-[72px] flex-1 rounded-xl bg-danger text-[clamp(20px,4.5vw,28px)] font-bold text-white fx:h-[88px] fx:min-h-0 fx:w-[296px] fx:flex-none fx:text-[28px]">Ulangi</button>
-              <button onClick={() => { reset(); setScreen("scan"); }} className="min-h-[72px] flex-1 rounded-xl bg-brand text-[clamp(20px,4.5vw,28px)] font-bold text-white fx:h-[88px] fx:min-h-0 fx:w-[296px] fx:flex-none fx:text-[28px]">Pilih</button>
+              <button onClick={() => { if (nikRef.current) usedNiks.current.add(nikRef.current); nikRef.current = null; reset(); setScreen("scan"); }} className="min-h-[72px] flex-1 rounded-xl bg-brand text-[clamp(20px,4.5vw,28px)] font-bold text-white fx:h-[88px] fx:min-h-0 fx:w-[296px] fx:flex-none fx:text-[28px]">Pilih</button>
             </div>
+          </div>
+        </div>
+      )}
+      {rejection && (
+        <div role="alertdialog" aria-modal="true" className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-3 fx:p-0">
+          <div style={view.fixed ? { transform: `scale(${view.scale})` } : undefined} className="w-[min(720px,100%)] rounded-2xl bg-white p-[clamp(20px,4vw,40px)] text-center shadow-[0_8px_32px_rgba(0,0,0,.3)] fx:w-[720px] fx:p-10">
+            <svg viewBox="0 0 64 64" aria-hidden className="mx-auto size-24 fx:size-32">
+              <circle cx="32" cy="32" r="30" fill="#E53935" />
+              <path d="M21 21l22 22M43 21L21 43" stroke="#fff" strokeWidth="6" strokeLinecap="round" />
+            </svg>
+            <div className="mt-6 text-[clamp(26px,6vw,40px)] font-bold uppercase leading-tight">Akses Ditolak</div>
+            <div className="mt-3 text-[clamp(18px,4.2vw,30px)] font-medium leading-snug">{rejection}</div>
+            <button onClick={() => setRejection(null)} className="mt-8 min-h-[72px] w-full rounded-xl bg-brand text-[clamp(20px,4.5vw,28px)] font-bold text-white active:bg-brand-dark fx:h-[88px] fx:text-[28px]">Tutup</button>
           </div>
         </div>
       )}
