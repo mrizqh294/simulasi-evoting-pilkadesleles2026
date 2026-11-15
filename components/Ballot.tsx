@@ -108,12 +108,12 @@ export default function Ballot() {
     <>
       {isModalOpen && chosen && (
         <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-3 fx:p-0">
-          <div style={view.fixed ? { transform: `scale(${view.scale})` } : undefined} className="max-h-full w-[min(720px,100%)] overflow-auto rounded-2xl bg-white p-[clamp(16px,4vw,40px)] text-center shadow-[0_8px_32px_rgba(0,0,0,.3)] fx:relative fx:h-[920px] fx:w-[720px] fx:overflow-hidden fx:p-10">
+          <div style={view.fixed ? { transform: `scale(${view.scale})` } : undefined} className="max-h-full w-[min(720px,100%)] overflow-auto rounded-2xl bg-white p-[clamp(16px,4vw,40px)] text-center shadow-[0_8px_32px_rgba(0,0,0,.3)] fx:relative fx:h-[750px] fx:w-[720px] fx:overflow-hidden fx:p-10">
             <Photo url={chosen.photoUrl} punched className="mx-auto w-[min(200px,30vh,60%)]" />
             <div className="mt-2.5 text-[clamp(26px,6vw,36px)] font-bold fx:text-4xl">{chosen.id}</div>
             <div className="mt-1 text-[clamp(20px,4.6vw,30px)] font-bold uppercase leading-tight fx:text-[30px]">{chosen.name}</div>
-            <div className="mt-6 text-[clamp(22px,5vw,36px)] leading-tight fx:mt-8 fx:text-2xl">Apakah Anda yakin akan memilih calon ini?</div>
-            <div className="mt-6 flex gap-4 fx:bottom-2 fx:mt-6 fx:justify-center fx:gap-6">
+            <div className="mt-6 text-[clamp(22px,5vw,36px)] leading-tight fx:mt-8 fx:mb-0 fx:text-2xl">Apakah Anda yakin akan memilih calon ini?</div>
+            <div className="mt-6 flex gap-4 fx:fixed fx:inset-x-0 fx:z-50 fx:bottom-6 fx:mt-0 fx:justify-center fx:gap-6">
               <button onClick={reset} className="min-h-[72px] flex-1 rounded-xl bg-danger text-[clamp(20px,4.5vw,28px)] font-bold text-white fx:h-[88px] fx:min-h-0 fx:w-[296px] fx:flex-none fx:text-[28px]">Ulangi</button>
               <button onClick={() => { if (nikRef.current) usedNiks.current.add(nikRef.current); nikRef.current = null; reset(); setScreen("scan"); }} className="min-h-[72px] flex-1 rounded-xl bg-brand text-[clamp(20px,4.5vw,28px)] font-bold text-white fx:h-[88px] fx:min-h-0 fx:w-[296px] fx:flex-none fx:text-[28px]">Pilih</button>
             </div>
