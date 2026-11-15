@@ -36,7 +36,7 @@ export default function Ballot() {
     if (currentScreen !== "scan" || rejection) return;
     const nik = raw.trim();
     if (!VALID_NIKS.includes(nik)) return setRejection("QR Code tidak terdaftar sebagai pemilih.");
-    if (usedNiks.current.has(nik)) return setRejection("NIK ini sudah menggunakan hak pilihnya.");
+    if (usedNiks.current.has(nik)) return setRejection("Anda sudah menggunakan hak pilih anda.");
     nikRef.current = nik;
     setScreen("vote");
   }, [currentScreen, rejection]);
