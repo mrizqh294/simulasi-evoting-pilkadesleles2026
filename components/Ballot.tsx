@@ -14,6 +14,7 @@ export default function Ballot() {
   const [selectedCandidateId, setSelected] = useState<number | null>(null);
   const [isModalOpen, setModal] = useState(false);
   const [rejection, setRejection] = useState<string | null>(null);
+  const [thanks, setThanks] = useState(false);
   const nikRef = useRef<string | null>(null);
   const usedNiks = useRef<Set<string>>(new Set()); // NIK yang sudah memilih (hanya di memori sesi)
   const [view, setView] = useState({ ready: false, fixed: false, scale: 1, x: 0, y: 0 });
@@ -52,6 +53,13 @@ export default function Ballot() {
     addEventListener("keydown", onKey);
     return () => removeEventListener("keydown", onKey);
   }, [currentScreen, handleScan]);
+
+  // Setelah "Pilih": popup Terima Kasih 2 detik, lalu kembali ke menu scan.
+  useEffect(() => {
+    if (!thanks) return;
+    const t = setTimeout(() => { setThanks(false); setScreen("scan"); }, 2000);
+    return () => clearTimeout(t);
+  }, [thanks]);
 
   const chosen = CANDIDATES.find((c) => c.id === selectedCandidateId) ?? null;
   const reset = () => { setSelected(null); setModal(false); };
@@ -115,8 +123,19 @@ export default function Ballot() {
             <div className="mt-6 text-[clamp(22px,5vw,36px)] leading-tight fx:mt-8 fx:mb-0 fx:text-2xl">Apakah Anda yakin akan memilih calon ini?</div>
             <div className="mt-6 flex gap-4 fx:fixed fx:inset-x-0 fx:z-50 fx:bottom-6 fx:mt-0 fx:justify-center fx:gap-6">
               <button onClick={reset} className="min-h-[72px] flex-1 rounded-xl bg-danger text-[clamp(20px,4.5vw,28px)] font-bold text-white fx:h-[88px] fx:min-h-0 fx:w-[296px] fx:flex-none fx:text-[28px]">Ulangi</button>
-              <button onClick={() => { if (nikRef.current) usedNiks.current.add(nikRef.current); nikRef.current = null; reset(); setScreen("scan"); }} className="min-h-[72px] flex-1 rounded-xl bg-brand text-[clamp(20px,4.5vw,28px)] font-bold text-white fx:h-[88px] fx:min-h-0 fx:w-[296px] fx:flex-none fx:text-[28px]">Pilih</button>
+              <button onClick={() => { if (nikRef.current) usedNiks.current.add(nikRef.current); nikRef.current = null; reset(); setThanks(true); }} className="min-h-[72px] flex-1 rounded-xl bg-brand text-[clamp(20px,4.5vw,28px)] font-bold text-white fx:h-[88px] fx:min-h-0 fx:w-[296px] fx:flex-none fx:text-[28px]">Pilih</button>
             </div>
+          </div>
+        </div>
+      )}
+      {thanks && (
+        <div role="status" aria-live="polite" className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-3 fx:p-0">
+          <div style={view.fixed ? { transform: `scale(${view.scale})` } : undefined} className="w-[min(720px,100%)] rounded-2xl bg-white p-[clamp(24px,5vw,56px)] text-center shadow-[0_8px_32px_rgba(0,0,0,.3)] fx:w-[720px] fx:p-14">
+            <svg viewBox="0 0 64 64" aria-hidden className="mx-auto size-24 animate-pop fx:size-32">
+              <circle cx="32" cy="32" r="30" fill="#1ef56d" />
+              <path d="M19 33l9 9 17-19" fill="none" stroke="#fff" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            <div className="mt-6 text-[clamp(32px,8vw,56px)] font-bold uppercase leading-tight">Terima Kasih</div>
           </div>
         </div>
       )}
