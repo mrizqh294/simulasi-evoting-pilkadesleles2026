@@ -110,10 +110,9 @@ export default function Ballot() {
             <Photo url={chosen.photoUrl} punched className="mx-auto w-[min(200px,30vh,60%)]" />
             <div className="mt-2.5 text-[clamp(26px,6vw,36px)] font-bold fx:text-4xl">{chosen.id}</div>
             <div className="mt-1 text-[clamp(20px,4.6vw,30px)] font-bold uppercase leading-tight fx:text-[30px]">{chosen.name}</div>
-            <div className="mt-6 text-[clamp(22px,5vw,36px)] leading-tight fx:mt-8 fx:mb-0 fx:text-2xl">Apakah Anda yakin akan memilih calon ini?</div>
             <div className="mt-6 flex gap-4 fx:fixed fx:inset-x-0 fx:z-50 fx:bottom-6 fx:mt-0 fx:justify-center fx:gap-6">
-              <button onClick={reset} className="min-h-[72px] flex-1 rounded-xl bg-danger text-[clamp(20px,4.5vw,28px)] font-bold text-white fx:h-[88px] fx:min-h-0 fx:w-[296px] fx:flex-none fx:text-[28px]">Ulangi</button>
-              <button onClick={() => { if (nikRef.current) usedNiks.current.add(nikRef.current); nikRef.current = null; reset(); setThanks(true); }} className="min-h-[72px] flex-1 rounded-xl bg-brand text-[clamp(20px,4.5vw,28px)] font-bold text-white fx:h-[88px] fx:min-h-0 fx:w-[296px] fx:flex-none fx:text-[28px]">Pilih</button>
+              <button onClick={reset} className="min-h-[50px] flex-1 rounded-xl bg-danger text-[clamp(20px,4.5vw,28px)] font-bold text-white fx:h-[88px] fx:min-h-0 fx:w-[296px] fx:flex-none fx:text-[28px]">Ulangi</button>
+              <button onClick={() => { if (nikRef.current) usedNiks.current.add(nikRef.current); nikRef.current = null; reset(); setThanks(true); }} className="min-h-[50px] flex-1 rounded-xl bg-brand text-[clamp(20px,4.5vw,28px)] font-bold text-white fx:h-[88px] fx:min-h-0 fx:w-[296px] fx:flex-none fx:text-[28px]">Pilih</button>
             </div>
           </div>
         </div>
@@ -175,7 +174,7 @@ export default function Ballot() {
               <b className="absolute inset-x-[8%] top-[8%] h-[3px] bg-brand/80 shadow-[0_0_12px_var(--color-brand)] animate-scan" />
               <div className="absolute inset-x-0 top-full mt-6 text-center text-white [text-shadow:0_1px_6px_rgba(0,0,0,.6)] fx:mt-8">
                 <p className="text-[clamp(20px,5vw,30px)] font-bold fx:text-[30px]">Pindai QR Code Anda</p>
-                <p className="mt-2 text-sm text-white/80">Arahkan QR Code pada kartu pemilih ke kamera</p>
+                <p className="mt-2 text-sm text-white/80">Panitia Pemilihan Kepala Desa Leles 2026</p>
               </div>
             </div>
           </div>

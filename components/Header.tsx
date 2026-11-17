@@ -10,9 +10,6 @@ export default function Header({ overlay = false }: { overlay?: boolean }) {
           : "bg-gradient-to-b from-header-red to-white fx:bg-none"
       }`}
     >
-      <span className="absolute left-4 top-[max(env(safe-area-inset-top),10px)] text-sm text-white/80 fx:left-[104px] fx:top-7">
-        Selamat datang, pemilih
-      </span>
       <Logo className="mx-auto mb-2 mt-[18px] fx:absolute fx:left-[912px] fx:top-6 fx:m-0" />
       <h1 className="text-[clamp(30px,8vw,56px)] font-bold uppercase leading-[1.1] fx:absolute fx:inset-x-0 fx:top-32 fx:text-[56px]">
         Surat Suara
