@@ -71,22 +71,12 @@ export default function Ballot() {
     "-bottom-0.5 -right-0.5 border-b-[6px] border-r-[6px]",
   ];
 
+  const scanning = currentScreen === "scan";
+
   const content = (
     <>
-      <Header />
-      {currentScreen === "scan" ? (
-        <section className="flex flex-col items-center px-4 py-8 fx:flex-1 fx:p-0 fx:pt-[60px]">
-          <div className="relative aspect-square w-[min(520px,80vw)] border-2 border-card-border bg-surface fx:w-[520px]">
-            <div className="absolute inset-0 overflow-hidden">
-              <ScanCamera onResult={handleScan} paused={!!rejection} />
-            </div>
-            {corners.map((c) => (<i key={c} className={`absolute size-[14%] border-brand ${c}`} />))}
-            <b className="absolute inset-x-[8%] top-[8%] h-[3px] bg-brand/70 animate-scan" />
-          </div>
-          <p className="mt-7 text-center text-[clamp(20px,5vw,30px)] font-bold fx:mt-10 fx:text-[30px]">Pindai QR Code Anda</p>
-          <p className="mt-2.5 text-center text-sm text-[#7a7f8c] fx:mt-3">Arahkan QR Code pada kartu pemilih ke kamera</p>
-        </section>
-      ) : (
+      {!scanning && <Header />}
+      {scanning ? null : (
         <>
           <section className="mx-auto grid max-w-[900px] grid-cols-[repeat(auto-fit,minmax(min(100%,150px),1fr))] gap-3.5 p-4 fx:mx-0 fx:flex fx:max-w-none fx:gap-7 fx:px-[104px] fx:pb-0 fx:pt-2.5">
             {CANDIDATES.map((c) => (
@@ -132,7 +122,7 @@ export default function Ballot() {
         <div role="status" aria-live="polite" className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-3 fx:p-0">
           <div style={view.fixed ? { transform: `scale(${view.scale})` } : undefined} className="w-[min(720px,100%)] rounded-2xl bg-white p-[clamp(24px,5vw,56px)] text-center shadow-[0_8px_32px_rgba(0,0,0,.3)] fx:w-[720px] fx:p-14">
             <svg viewBox="0 0 64 64" aria-hidden className="mx-auto size-24 animate-pop fx:size-32">
-              <circle cx="32" cy="32" r="30" fill="#1ef56d" />
+              <circle cx="32" cy="32" r="30" fill="#1ef562" />
               <path d="M19 33l9 9 17-19" fill="none" stroke="#fff" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
             <div className="mt-6 text-[clamp(32px,8vw,56px)] font-bold uppercase leading-tight">Terima Kasih</div>
@@ -155,7 +145,7 @@ export default function Ballot() {
     </>
   );
 
-  const stageCls = "relative min-h-dvh bg-paper pb-[env(safe-area-inset-bottom)] fx:absolute fx:flex fx:h-[1200px] fx:min-h-0 fx:w-[1920px] fx:origin-top-left fx:flex-col fx:overflow-hidden fx:bg-transparent fx:pb-0";
+  const stageCls = `relative min-h-dvh ${scanning ? "bg-transparent" : "bg-paper"} pb-[env(safe-area-inset-bottom)] fx:absolute fx:flex fx:h-[1200px] fx:min-h-0 fx:w-[1920px] fx:origin-top-left fx:flex-col fx:overflow-hidden fx:bg-transparent fx:pb-0`;
 
   return (
     <div
@@ -169,6 +159,28 @@ export default function Ballot() {
       }}
     >
       <Defs />
+      {scanning && (
+        <>
+          {/* Kamera memenuhi seluruh layar */}
+          <div className="fixed inset-0 bg-black">
+            <ScanCamera onResult={handleScan} paused={!!rejection} />
+          </div>
+          {/* Bingkai pindai di tengah (dengan latar redup di luar bingkai) */}
+          <div className="pointer-events-none fixed inset-0 flex items-center justify-center">
+            <div
+              style={{ transform: view.fixed ? `scale(${view.scale})` : "none" }}
+              className="relative aspect-square w-[min(520px,80vw)] border-2 border-white/40 shadow-[0_0_0_3000px_rgba(0,0,0,.5)] fx:w-[520px]"
+            >
+              {corners.map((c) => (<i key={c} className={`absolute size-[14%] border-brand ${c}`} />))}
+              <b className="absolute inset-x-[8%] top-[8%] h-[3px] bg-brand/80 shadow-[0_0_12px_var(--color-brand)] animate-scan" />
+              <div className="absolute inset-x-0 top-full mt-6 text-center text-white [text-shadow:0_1px_6px_rgba(0,0,0,.6)] fx:mt-8">
+                <p className="text-[clamp(20px,5vw,30px)] font-bold fx:text-[30px]">Pindai QR Code Anda</p>
+                <p className="mt-2 text-sm text-white/80">Arahkan QR Code pada kartu pemilih ke kamera</p>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
       {view.fixed ? (
         <div className={stageCls} style={{ transform: `scale(${view.scale})`, left: view.x, top: view.y }}>{content}</div>
       ) : (
